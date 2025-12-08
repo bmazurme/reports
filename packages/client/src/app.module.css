@@ -1,0 +1,25 @@
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+.item {
+  flex: 0 1 calc(25% - 12px);
+}
+.total {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.fields {
+  display: flex;
+  flex-direction: column;
+  max-width: 50%;
+  margin-top: 20px;
+  gap: 10px;
+}
+.select {
+  margin-top: 20px;
+}
