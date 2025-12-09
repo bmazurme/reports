@@ -14,6 +14,8 @@
   "dependencies": {
     "@reports/shared": "*",
     "cors": "^2.8.5",
+    "csv-writer": "^1.6.0",
+    "date-fns": "^4.1.0",
     "express": "^5.2.1"
   },
   "devDependencies": {
