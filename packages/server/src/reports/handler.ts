@@ -1,0 +1,95 @@
+import type { Request, Response } from 'express';
+import type { IssueResponse, ResultType, StreamEvent } from '@reports/shared';
+// import path from 'path';
+// import { fileURLToPath } from 'url';
+// import { dirname } from 'path';
+
+import { exportToCsv } from './export-to-csv';
+import { getCurrentMonthDates } from './get-current-month-dates';
+import { convertToHours } from './convert-to-hours';
+import { projectDict, statusDict } from './constants';
+import { buildName } from './build-name';
+
+const { GITLAB_URL, PRIVATE_TOKEN, USER_ID } = process.env;
+
+export async function handleReport(req: Request, res: Response) {
+  const sendEvent = (event: StreamEvent) => {
+    res.write(JSON.stringify(event) + '\n');
+  };
+  let issues: any = [];
+
+  const filename = buildName();
+  const { start, end } = getCurrentMonthDates();
+  const fetchConfig = {
+    method: 'GET',
+    headers: {
+      'Private-Token': PRIVATE_TOKEN,
+      'Content-Type': 'application/json'
+    },
+  };
+  const closedUrl = `${GITLAB_URL}/issues?assignee_id=${USER_ID}&scope=all&state=closed&updated_after=${start}`;
+  const openUrl = `${GITLAB_URL}/issues?assignee_id=${USER_ID}&scope=all&state=opened`;
+
+  try {
+    const [closedResponse, openResponse] = await Promise.all([
+      fetch(closedUrl, fetchConfig),
+      fetch(openUrl, fetchConfig),
+    ]);
+
+    if (!closedResponse.ok) {
+      throw new Error(`Ошибка HTTP для закрытых задач: ${closedResponse.status}`);
+    }
+
+    if (!openResponse.ok) {
+      throw new Error(`Ошибка HTTP для открытых задач: ${openResponse.status}`);
+    }
+
+    const [closedIssues, openedIssues] = await Promise.all([
+      closedResponse.json() as Promise<IssueResponse>,
+      openResponse.json()  as Promise<IssueResponse>,
+    ]);
+    const allIssues = [...closedIssues, ...openedIssues];
+    const result: ResultType[] = [];
+
+    allIssues.forEach(async (issue) => {
+      result.push({
+        id: issue.id,
+        iid: issue.iid,
+        title: issue.title,
+        project: issue.project_id,
+        status: issue.state,
+        created: issue.created_at,
+        timeStats: issue.time_stats?.human_time_estimate || '0',
+      });
+    });
+    
+    issues = result.map((x) => ({
+      name: `${x.iid} ${projectDict[x.project] || ''} ${x.title}`,
+      status: statusDict[x.status],
+      time: convertToHours(x.timeStats),
+    }));
+
+    exportToCsv(filename, issues);
+  } catch (error) {
+    console.error('Ошибка при получении задач:', error);
+  }
+
+  try {
+    // const __dirname = dirname(fileURLToPath(import.meta.url));
+    // const filePath = path.join(__dirname, '..', '..', filename)
+
+    // res.setHeader('Content-Type', 'text/csv');
+    // res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    // res.sendFile(filePath);
+
+    sendEvent({ type: 'message', data: issues });
+    res.end();
+  } catch (error) {
+    console.error('Counts error:', error);
+    sendEvent({
+      type: 'error',
+      data: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.end();
+  }
+}
