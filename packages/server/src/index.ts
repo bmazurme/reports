@@ -11,7 +11,7 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-app.get('/api/counts', handleCounts);
+app.get('/api/counts/:id', handleCounts);
 app.get('/api/reports', handleReport);
 
 app.get('/', (req: Request, res: Response) => {

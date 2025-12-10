@@ -13,6 +13,9 @@ import { buildName } from './build-name';
 const { GITLAB_URL, PRIVATE_TOKEN, USER_ID } = process.env;
 
 export async function handleReport(req: Request, res: Response) {
+  res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+  res.setHeader('Transfer-Encoding', 'chunked');
+  
   const sendEvent = (event: StreamEvent) => {
     res.write(JSON.stringify(event) + '\n');
   };

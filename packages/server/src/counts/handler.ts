@@ -5,13 +5,17 @@ import { countWorkAndShortDays } from '../utils/count-work-and-short-days';
 import { props } from './props';
 
 export async function handleCounts(req: Request, res: Response) {
+  const { id } = req.params;
+  res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+  res.setHeader('Transfer-Encoding', 'chunked');
+
   const sendEvent = (event: StreamEvent) => {
     res.write(JSON.stringify(event) + '\n');
   };
 
   try {
-    const { holidays, shortDays, badDays, offDays } = props[2025];
-    const calendar = countWorkAndShortDays(2025, holidays, shortDays, badDays, offDays);
+    const { holidays, shortDays, badDays, offDays } = props[Number(id)];
+    const calendar = countWorkAndShortDays(Number(id), holidays, shortDays, badDays, offDays);
 
     sendEvent({ type: 'message', data: { calendar, holidays, shortDays, badDays, offDays } });
     res.end();
