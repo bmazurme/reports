@@ -28,6 +28,11 @@ export type DateType = {
   badDays: string[];
   offDays: string[];
 }
+export type ReportType = {
+  name: string;
+  status: string;
+  time: number;
+};
 
 export type UserType = {
   id: number;
