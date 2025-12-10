@@ -1,35 +1,28 @@
 import { useEffect, useState } from 'react';
 import { Calendar } from '@gravity-ui/date-components';
 import { dateTimeParse, type DateTime } from '@gravity-ui/date-utils';
-import { TextInput, Text, Select } from '@gravity-ui/uikit';
+import { TextInput, Text, Select, Loader, TableColumnConfig } from '@gravity-ui/uikit';
+import type { DateType, MonthKeyType, KeyType } from '@reports/shared';
 import { options } from './constants';
+import MyTable, { RowData } from './hocs/with-table-sorting';
 
 import './App.css';
 import style from './app.module.css';
 
-type MonthType = {
-  allDays: number;
-  holidays: number;
-  weekends: number;
-  offDays: number;
-  shortDays: number;
-  workDays: number;
-  hours: number;
-}
+const fields: Record<KeyType, string> = {
+  allDays: 'All days',
+  holidays: 'Holidays',
+  weekends: 'Weekends',
+  offDays: 'Off days',
+  shortDays: 'Short days',
+  workDays: 'workDays',
+  hours: 'Hours'
+};
 
-type MonthKeyType = '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | '11' | '12';
-
-type DateType = {
-  calendar: Record<MonthKeyType, MonthType>;
-  holidays: string[];
-  shortDays: string[];
-  badDays: string[];
-  offDays: string[];
-}
-
-function App({ year = 2025 }
-  : { year?: number; }) {
+function App({ year = 2025 }: { year?: number; }) {
   const [data, setData] = useState<DateType | null>(null);
+  const [report, setReport] = useState([]);
+  const [total, setTotal] = useState(0);
   const [month, setMonth] = useState<MonthKeyType>('12');
   const getLastDayOfMonth = (year: number, month: number) => {
     return new Date(year, month, 0).getDate();
@@ -57,52 +50,71 @@ function App({ year = 2025 }
   });
 
   useEffect(() => {
-    fetch('http://localhost:3000/api/counts')
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+    const fetchData = async () => {
+      try {
+        const [countsResponse, reportResponse] = await Promise.all([
+          fetch('http://localhost:3000/api/counts'),
+          fetch('http://localhost:3000/api/reports'),
+        ]);
+
+        if (!countsResponse.ok) {
+          throw new Error(`HTTP error fetching counts! status: ${countsResponse.status}`);
         }
-        return response.json();
-      })
-      .then(({ data }) => {
-        setData(data);
-      })
-      .catch(error => {
-        console.error('There was a problem with the fetch operation:', error);
-      });
+        if (!reportResponse.ok) {
+          throw new Error(`HTTP error fetching reports! status: ${reportResponse.status}`);
+        }
+
+        const { data: countsData } = await countsResponse.json();
+        const { data: reportData } = await reportResponse.json();
+
+        setData(countsData);
+        setReport(reportData);
+        setTotal(reportData.reduce((a: number, x: { time: number }) => a + x.time, 0))
+      } catch (error) {
+        console.error('There was a problem with the fetch operations:', error);
+      }
+    };
+
+    fetchData();
   }, []);
 
-  return (
+  const columns: TableColumnConfig<RowData>[] = [
+    { id: 'name', name: 'Наименование задачи', align: 'left', meta: { sort: true } },
+    { id: 'status', name: 'Статус задачи', align: 'center', meta: { sort: true } },
+    { id: 'time', name: 'Часы', align: 'center', meta: { sort: true } },
+  ];
+
+  return (!data ? <Loader size="s" /> :
     <>
       <Text variant="display-3">{year}</Text>
-
       {data &&
-        <div className={style.grid}>
-        {Object.keys(data.calendar).map((month) => {
-          const monthNum = Number(month);
-          const minDate = dateTimeParse(new Date(`${year}-${monthNum}-01`));
-          const maxDate = dateTimeParse(new Date(`${year}-${monthNum}-${getLastDayOfMonth(year, monthNum)}`));
+        <div className="calendar">
+          <div className={style.grid}>
+          {Object.keys(data.calendar).map((month) => {
+            const monthNum = Number(month);
+            const minDate = dateTimeParse(new Date(`${year}-${monthNum}-01`));
+            const maxDate = dateTimeParse(new Date(`${year}-${monthNum}-${getLastDayOfMonth(year, monthNum)}`));
 
-          return (
-            <div
-              className={style.item}
-              key={month}>
-              <Calendar
-                mode="days"
-                size="m"
-                focusedValue={minDate}
-                minValue={minDate}
-                maxValue={maxDate}
-                isWeekend={isWeekendOrHoliday}
-              />
-            </div>)
-          })}
+            return (
+              <div
+                className={style.item}
+                key={month}>
+                <Calendar
+                  mode="days"
+                  size="m"
+                  focusedValue={minDate}
+                  minValue={minDate}
+                  maxValue={maxDate}
+                  isWeekend={isWeekendOrHoliday}
+                />
+              </div>)
+            })}
+        </div>
       </div>}
 
       {data &&
       <div className={style.total}>
         <Text variant="header-2">Details</Text>
-
         <Select
           label="Month"
           value={[month]}
@@ -110,52 +122,29 @@ function App({ year = 2025 }
           onUpdate={([t]) => setMonth(t as MonthKeyType)}
           options={options}
         />
-
         <div className={style.fields}>
-          <TextInput
+          {Object.entries(fields).map(([key, label]) => <TextInput
+            key={key}
             placeholder="0"
-            label="All days"
+            label={label}
             disabled
-            value={`${data.calendar[month].allDays}`}
-          />
+            value={`${data.calendar[month][key as KeyType]}`}
+          />)}
           <TextInput
-            placeholder="0"
-            label="Holidays"
+            label="Сумма"
             disabled
-            value={`${data.calendar[month].holidays}`}
-          />
-          <TextInput
-            placeholder="0"
-            label="Weekends"
-            disabled
-            value={`${data.calendar[month].weekends}`}
-          />
-          <TextInput
-            placeholder="0"
-            label="Off days"
-            disabled
-            value={`${data.calendar[month].offDays}`}
-          />
-          <TextInput
-            placeholder="0"
-            label="Short days"
-            disabled
-            value={`${data.calendar[month].shortDays}`}
-          />
-          <TextInput
-            placeholder="0"
-            label="Work days"
-            disabled
-            value={`${data.calendar[month].workDays}`}
-          />
-          <TextInput
-            placeholder="0"
-            label="Hours"
-            disabled
-            value={`${data.calendar[month].hours}`}
+            errorPlacement="inside"
+            validationState="invalid"
+            value={`${total}`}
           />
         </div>
       </div>}
+      <div className={style.total}>
+        <MyTable
+          data={report}
+          columns={columns}
+        />
+      </div>
     </>
   )
 }
