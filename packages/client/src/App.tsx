@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Text, Select, Loader } from '@gravity-ui/uikit';
+import { Text, Select, Loader, ThemeProvider, Button, Icon } from '@gravity-ui/uikit';
+import { Moon, Sun } from '@gravity-ui/icons';
+
 import type { DateType, MonthKeyType } from '@reports/shared';
 import { years } from './constants';
 import { RowData } from './hocs/with-table-sorting';
+import { getInitialTheme } from './utils/get-initial-theme';
 import Report from './report';
 import MyCalendar from './calendar';
 import Details from './details';
@@ -21,6 +24,11 @@ export type AppState = {
 };
 
 function App() {
+  const [theme, setTheme] = useState<'light' | 'dark'>(getInitialTheme);
+  const toggleTheme = () => {
+    setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
+  };
+
   const [state, setState] = useState<AppState>({
     data: null,
     report: [],
@@ -28,6 +36,14 @@ function App() {
     month: '12',
     year: '2025',
   });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('theme', theme);
+    } catch (error) {
+      console.error('Не удалось сохранить тему в localStorage', error);
+    }
+  }, [theme]);
 
   useEffect(() => {
     let ignore = false;
@@ -60,11 +76,22 @@ function App() {
     };
   }, [state.year]);
 
-  return (!state.data
-    ? <Loader size="s" />
-    : <>
-      <Text variant="display-3">{`Note ${state.year}`}</Text>
-        <div className={style.total}>
+  return (
+    <ThemeProvider theme={theme}>
+    {!state.data
+      ? <Loader size="s" />
+      :
+        <>
+          <Button
+            view="outlined"
+            className={style.toggle}
+            size="l"
+            onClick={toggleTheme}
+            title={theme === 'light' ? 'Тёмная' : 'Светлая'}
+          >
+            <Icon data={theme === 'light' ? Moon : Sun} size={18} />
+          </Button>
+          <Text variant="display-3">{`Note ${state.year}`}</Text><div className={style.total}>
           <Select
             label="Year"
             value={[state.year]}
@@ -72,19 +99,21 @@ function App() {
             onUpdate={([t]) => setState((prev) => ({ ...prev, year: t as MonthKeyType }))}
             options={years}
           />
-        </div>
-      <MyCalendar
-        data={state.data}
-        year={state.year}
-      />
-      <Details
-        month={state.month}
-        total={state.total}
-        data={state.data}
-        setState={setState}
-      />
-      <Report report={state.report} />
-    </>
+          </div>
+            <MyCalendar
+              data={state.data}
+              year={state.year}
+            />
+            <Details
+              month={state.month}
+              total={state.total}
+              data={state.data}
+              setState={setState}
+            />
+          <Report report={state.report} />
+        </>
+      }
+    </ThemeProvider>
   )
 }
 
