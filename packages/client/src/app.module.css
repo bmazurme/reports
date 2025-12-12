@@ -12,6 +12,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  width: 100%;
 }
 .report {
   display: flex;
@@ -29,4 +30,7 @@
 }
 .select {
   margin-top: 20px;
+}
+.toggle {
+  margin-bottom: 20px;
 }
