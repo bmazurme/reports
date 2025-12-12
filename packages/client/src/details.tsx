@@ -34,7 +34,7 @@ function Details({ month, total, data, setState }: DetailProps) {
         value={`${data?.calendar[month][key as KeyType]}`}
       />)}
       <TextInput
-        label="Сумма"
+        label="Total"
         disabled
         errorPlacement="inside"
         validationState="invalid"
