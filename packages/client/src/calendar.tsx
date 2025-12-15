@@ -1,11 +1,10 @@
 
 import { Calendar } from '@gravity-ui/date-components';
 import { DateTime, dateTimeParse } from '@gravity-ui/date-utils';
+import { DateType } from '@reports/shared';
 
 import './App.css';
 import style from './app.module.css';
-import { DateType } from '@reports/shared';
-
 
 function MyCalendar({ data, year }: { data: DateType; year: string }) {
   const getLastDayOfMonth = (year: number, month: number) => {
