@@ -1,30 +1,27 @@
 import { useEffect, useState } from 'react';
-import { Text, Select, Loader, ThemeProvider, Button, Icon } from '@gravity-ui/uikit';
-import { Moon, Sun } from '@gravity-ui/icons';
-
+import { Loader, ThemeProvider } from '@gravity-ui/uikit';
 import type { DateType, MonthKeyType } from '@reports/shared';
-import { years } from './constants';
+
 import { RowData } from './hocs/with-table-sorting';
 import { getInitialTheme } from './utils/get-initial-theme';
-import Report from './report';
-import MyCalendar from './calendar';
-import Details from './details';
+import AppLayout from './app-layout';
 
 import fetchDataFromApi from './api';
 
 import './App.css';
-import style from './app.module.css';
 
 export type AppState = {
   data: DateType | null;
   report: RowData[];
   total: number;
+  issues: number;
   month: MonthKeyType;
   year: string;
 };
 
 function App() {
   const [theme, setTheme] = useState<'light' | 'dark'>(getInitialTheme);
+  const [isLoading, setIsLoading] = useState(true);
   const toggleTheme = () => {
     setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
   };
@@ -33,6 +30,7 @@ function App() {
     data: null,
     report: [],
     total: 0,
+    issues: 0,
     month: '12',
     year: '2025',
   });
@@ -49,6 +47,7 @@ function App() {
     let ignore = false;
 
     const fetchData = async () => {
+      setIsLoading(true);
       try {
         const { countsData, reportData } = await fetchDataFromApi(state.year);
 
@@ -62,11 +61,13 @@ function App() {
               meta: { sort: true },
             })),
             total: reportData.reduce((a, x) => a + x.time, 0),
+            issues: reportData.length,
           }));
         }
         } catch (error) {
           console.error('There was a problem with the fetch operations:', error);
         }
+        setIsLoading(false);
       };
 
     fetchData();
@@ -78,40 +79,14 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
-    {!state.data
-      ? <Loader size="s" />
-      :
-        <>
-          <Button
-            view="outlined"
-            className={style.toggle}
-            size="l"
-            onClick={toggleTheme}
-            title={theme === 'light' ? 'Тёмная' : 'Светлая'}
-          >
-            <Icon data={theme === 'light' ? Moon : Sun} size={18} />
-          </Button>
-          <Text variant="display-3">{`Note ${state.year}`}</Text><div className={style.total}>
-          <Select
-            label="Year"
-            value={[state.year]}
-            className={style.select}
-            onUpdate={([t]) => setState((prev) => ({ ...prev, year: t as MonthKeyType }))}
-            options={years}
+      {isLoading && !state.data
+        ? <Loader size="s" />
+        : <AppLayout
+            state={state}
+            setState={setState}
+            theme={theme}
+            toggleTheme={toggleTheme}
           />
-          </div>
-            <MyCalendar
-              data={state.data}
-              year={state.year}
-            />
-            <Details
-              month={state.month}
-              total={state.total}
-              data={state.data}
-              setState={setState}
-            />
-          <Report report={state.report} />
-        </>
       }
     </ThemeProvider>
   )
