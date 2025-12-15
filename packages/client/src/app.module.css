@@ -28,9 +28,16 @@
   margin-top: 20px;
   gap: 10px;
 }
-.select {
+/* .select {
   margin-top: 20px;
-}
+} */
 .toggle {
   margin-bottom: 20px;
+}
+.grid {
+  display: flex;
+}
+.progress {
+  width: 50%;
+  margin-top: 20px;
 }
