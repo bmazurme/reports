@@ -53,6 +53,7 @@ function AppLayout({ state, setState, theme, toggleTheme }: AppLayoutProps) {
           data={state.data!}
           setState={setState}
           issues={state.issues}
+          closed={state.closed}
         />
       <Report report={state.report} />
     </>
