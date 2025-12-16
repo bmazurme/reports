@@ -2,6 +2,7 @@ import {
   TextInput, Text, Select, Progress, ProgressColorStops,
 } from '@gravity-ui/uikit';
 import type { MonthKeyType, KeyType, DateType } from '@reports/shared';
+
 import { options, fields } from './constants';
 import { AppState } from './App';
 
@@ -13,6 +14,7 @@ type DetailProps = {
   issues: number;
   month: MonthKeyType;
   data: DateType;
+  closed: number;
   setState: (value: AppState | ((prevState: AppState) => AppState)) => void;
 }
 
@@ -22,12 +24,14 @@ const colorStopsConfig: ProgressColorStops[] = [
   { theme: 'success', stop: 100 }
 ];
 
-function Details({ month, total, issues, data, setState }: DetailProps) {
+function Details({ month, total, issues, data, setState, closed }: DetailProps) {
+  const currentMonth = new Date().getMonth() + 1;
+
   return <div className={style.total}>
     <Text variant="header-2">Details</Text>
     <div className={style.progress}>
       <Progress
-        value={total / data.calendar[month].hours * 100}
+        value={currentMonth.toString() === month ? total / data.calendar[month].hours * 100 : 0}
         size="xs"
         colorStops={colorStopsConfig}
       />
@@ -64,6 +68,13 @@ function Details({ month, total, issues, data, setState }: DetailProps) {
           errorPlacement="inside"
           validationState="invalid"
           value={`${issues}`}
+        />
+        <TextInput
+          label="Closed issues"
+          disabled
+          errorPlacement="inside"
+          validationState="invalid"
+          value={`${closed}`}
         />
       </div>
     </div>
