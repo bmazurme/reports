@@ -15,6 +15,7 @@ export type AppState = {
   report: RowData[];
   total: number;
   issues: number;
+  closed: number;
   month: MonthKeyType;
   year: string;
 };
@@ -31,6 +32,7 @@ function App() {
     report: [],
     total: 0,
     issues: 0,
+    closed: 0,
     month: '12',
     year: '2025',
   });
@@ -62,7 +64,8 @@ function App() {
             })),
             total: reportData.reduce((a, x) => a + x.time, 0),
             issues: reportData.length,
-          }));
+            closed: reportData.reduce((a, x) => a + (x.status === 'Закрыта' ? 1 : 0), 0),
+          })); 
         }
         } catch (error) {
           console.error('There was a problem with the fetch operations:', error);
