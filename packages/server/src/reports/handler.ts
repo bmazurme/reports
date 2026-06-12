@@ -7,20 +7,23 @@ import type { IssueResponse, ResultType, StreamEvent } from '@reports/shared';
 import { exportToCsv } from './export-to-csv';
 import { getCurrentMonthDates } from './get-current-month-dates';
 import { convertToHours } from './convert-to-hours';
-import { projectDict, statusDict } from './constants';
+import { statusDict } from './constants';
 import { buildName } from './build-name';
 import { mockReports } from './mock-data';
-
-const { GITLAB_URL, PRIVATE_TOKEN, USER_ID } = process.env;
+import { getSettings } from '../settings/props';
+import { getProjectDict } from './project-dict-props';
 
 export async function handleReport(req: Request, res: Response) {
   res.setHeader('Content-Type', 'text/plain; charset=utf-8');
   res.setHeader('Transfer-Encoding', 'chunked');
-  
+
   const sendEvent = (event: StreamEvent) => {
     res.write(JSON.stringify(event) + '\n');
   };
   let issues: any = [];
+
+  const { gitlabUrl: GITLAB_URL, privateToken: PRIVATE_TOKEN, userId: USER_ID } = getSettings();
+  const projectDict = getProjectDict();
 
   if (!GITLAB_URL) {
     sendEvent({ type: 'message', data: mockReports });

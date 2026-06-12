@@ -8,7 +8,7 @@ export interface ReportState {
   year: string;
 }
 
-const defaultStateReport: ReportState = {
+export const defaultStateReport: ReportState = {
   month: '12',
   year: '2025',
 };
