@@ -1,21 +1,30 @@
+import { useEffect } from 'react';
 import { Loader } from '@gravity-ui/uikit';
 import { Routes, Route } from 'react-router-dom';
 
 import Home from './pages/home';
 import CalendarPage from './pages/calendar';
 import Settings from './pages/settings';
-import { useGetCountsQuery, useGetReportsQuery } from './store/api';
-import { reportSelector } from './store';
-import { useAppSelector } from './hooks';
+import { useGetCountsQuery, useGetReportsQuery, useGetSettingsQuery } from './store/api';
+import { reportSelector, setSettings } from './store';
+import { useAppDispatch, useAppSelector } from './hooks';
 
 import './App.css';
 import style from './app.module.css';
 
 function AppLayout() {
+  const dispatch = useAppDispatch();
   const state = useAppSelector(reportSelector);
 
   const { data, isLoading: isCountsLoading } = useGetCountsQuery(state.year);
   const { data: reportData, isLoading: isReportsLoading } = useGetReportsQuery();
+  const { data: settingsData } = useGetSettingsQuery();
+
+  useEffect(() => {
+    if (settingsData) {
+      dispatch(setSettings(settingsData));
+    }
+  }, [settingsData, dispatch]);
 
   if ((isCountsLoading || isReportsLoading) && (!data || !reportData)) {
     return (

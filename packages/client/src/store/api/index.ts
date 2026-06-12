@@ -1,1 +1,12 @@
-export { default as reportsApi, useGetCountsQuery, useGetReportsQuery } from './reports-api/index';
+export {
+  default as reportsApi,
+  useGetCountsQuery,
+  useGetReportsQuery,
+  useAddOffDaysMutation,
+  useRemoveOffDayMutation,
+  useGetSettingsQuery,
+  useSetSettingsMutation,
+  useGetProjectDictQuery,
+  useAddProjectCodeMutation,
+  useRemoveProjectCodeMutation,
+} from './reports-api/index';
