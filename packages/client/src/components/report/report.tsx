@@ -4,6 +4,7 @@ import type { MonthKeyType } from '@reports/shared';
 import { columns } from '../../constants';
 import MyTable, { RowData } from '../../hocs/with-table-sorting';
 import { reportSelector, settingsSelector } from '../../store';
+import { useGetCountsQuery, useGetReportsQuery } from '../../store/api';
 import { useAppSelector } from '../../hooks';
 import { exportReport } from '../../utils/export-report';
 
@@ -13,6 +14,8 @@ import reportStyle from './report.module.css';
 function Report({ report, offDays }: { report: RowData[]; offDays: number }) {
   const { month, year } = useAppSelector(reportSelector);
   const { employee, company } = useAppSelector(settingsSelector);
+  const { refetch: refetchCounts } = useGetCountsQuery(year);
+  const { refetch: refetchReports } = useGetReportsQuery();
 
   const handleExport = () => {
     exportReport({
@@ -25,13 +28,23 @@ function Report({ report, offDays }: { report: RowData[]; offDays: number }) {
     });
   };
 
+  const handleRefresh = () => {
+    refetchCounts();
+    refetchReports();
+  };
+
   return (
     <div className={style.report}>
       <div className={reportStyle.header}>
         <Text variant="header-2">Report</Text>
-        <Button view="normal" size="m" onClick={handleExport}>
-          Export
-        </Button>
+        <div className={reportStyle.actions}>
+          <Button view="normal" size="m" onClick={handleRefresh}>
+            Refresh data
+          </Button>
+          <Button view="normal" size="m" onClick={handleExport}>
+            Export
+          </Button>
+        </div>
       </div>
       <div className={reportStyle.card}>
         <MyTable

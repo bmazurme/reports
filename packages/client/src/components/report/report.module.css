@@ -5,6 +5,12 @@
   gap: 10px;
 }
 
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .card {
   margin-top: 12px;
   border: 1px solid var(--g-color-line-generic);
