@@ -1,7 +1,61 @@
+.page {
+  display: flex;
+  gap: 20px;
+}
+
 .form {
   display: flex;
   flex-direction: column;
   gap: 12px;
   max-width: 360px;
-  padding: 24px;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--g-color-line-generic);
+  border-radius: 12px;
+  background-color: var(--g-color-base-background);
+}
+
+.codes {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 280px;
+  padding: 12px;
+  border: 1px solid var(--g-color-line-generic);
+  border-radius: 12px;
+  background-color: var(--g-color-base-background);
+}
+
+.codesList {
+  display: flex;
+  flex-direction: column;
+  margin-top: 12px;
+}
+
+.codesItem {
+  display: block;
+  width: 100%;
+  padding: 6px 8px;
+  border: none;
+  background: none;
+  border-radius: 4px;
+  text-align: left;
+  font: inherit;
+  color: var(--g-color-text-primary);
+  cursor: pointer;
+}
+
+.codesItem:hover {
+  background-color: var(--g-color-base-simple-hover);
+  color: var(--g-color-text-danger);
+}
+
+.codeForm {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
