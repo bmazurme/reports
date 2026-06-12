@@ -34,6 +34,16 @@ export type ReportType = {
   time: number;
 };
 
+export type SettingsType = {
+  gitlabUrl: string;
+  privateToken: string;
+  userId: string;
+  employee: string;
+  company: string;
+};
+
+export type ProjectDictType = Record<string, string>;
+
 export type UserType = {
   id: number;
   username: string;
