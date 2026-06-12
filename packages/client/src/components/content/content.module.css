@@ -1,0 +1,32 @@
+.content {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+}
+.sidebar {
+  flex: 0 0 240px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+.right {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+.body {
+  display: flex;
+  flex: 1;
+  width: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+}
+.main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}

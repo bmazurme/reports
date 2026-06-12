@@ -1,62 +1,60 @@
-import { Text, Select, Button, Icon } from '@gravity-ui/uikit';
-import { Moon, Sun } from '@gravity-ui/icons';
-import type { MonthKeyType } from '@reports/shared';
+import { Loader } from '@gravity-ui/uikit';
+import { Routes, Route } from 'react-router-dom';
 
-import { years } from './constants';
-import Report from './report';
-import MyCalendar from './calendar';
-import Details from './details';
-import { AppState } from './App';
+import Home from './pages/home';
+import CalendarPage from './pages/calendar';
+import Settings from './pages/settings';
+import { useGetCountsQuery, useGetReportsQuery } from './store/api';
+import { reportSelector } from './store';
+import { useAppSelector } from './hooks';
 
 import './App.css';
 import style from './app.module.css';
 
-type AppLayoutProps = {
-  state: AppState;
-  theme: 'light' | 'dark';
-  setState: (value: AppState | ((prevState: AppState) => AppState)) => void;
-  toggleTheme: () => void;
-}
+function AppLayout() {
+  const state = useAppSelector(reportSelector);
 
-function AppLayout({ state, setState, theme, toggleTheme }: AppLayoutProps) {
-  return (
-    <>
-      <Button
-        view="outlined"
-        className={style.toggle}
-        size="l"
-        onClick={toggleTheme}
-        title={theme === 'light' ? 'Тёмная' : 'Светлая'}
-      >
-        <Icon
-          data={theme === 'light' ? Moon : Sun}
-          size={18}
-        />
-      </Button>
-      <Text variant="display-3">{`Note ${state.year}`}</Text>
-      <div className={style.total}>
-        <Select
-          label="Year"
-          value={[state.year]}
-          className={style.select}
-          onUpdate={([t]) => setState((prev) => ({ ...prev, year: t as MonthKeyType }))}
-          options={years}
-        />
+  const { data, isLoading: isCountsLoading } = useGetCountsQuery(state.year);
+  const { data: reportData, isLoading: isReportsLoading } = useGetReportsQuery();
+
+  if ((isCountsLoading || isReportsLoading) && (!data || !reportData)) {
+    return (
+      <div className={style.loader}>
+        <Loader size="s" />
       </div>
-        <MyCalendar
-          data={state.data!}
-          year={state.year}
-        />
-        <Details
-          month={state.month}
-          total={state.total}
-          data={state.data!}
-          setState={setState}
-          issues={state.issues}
-          closed={state.closed}
-        />
-      <Report report={state.report} />
-    </>
+    );
+  }
+
+  const report = (reportData ?? []).map((x, i) => ({
+    ...x,
+    id: i.toString(),
+    meta: { sort: true },
+  }));
+  const total = (reportData ?? []).reduce((a, x) => a + x.time, 0);
+  const issues = (reportData ?? []).length;
+  const closed = (reportData ?? []).reduce((a, x) => a + (x.status === 'Закрыта' ? 1 : 0), 0);
+
+  return (
+    <Routes>
+      <Route
+        path="/"
+        element={(
+          <Home
+            month={state.month}
+            total={total}
+            data={data!}
+            issues={issues}
+            closed={closed}
+            report={report}
+          />
+        )}
+      />
+      <Route
+        path="/calendar"
+        element={<CalendarPage data={data!} year={state.year} />}
+      />
+      <Route path="/settings" element={<Settings />} />
+    </Routes>
   )
 }
 

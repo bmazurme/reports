@@ -1,13 +1,12 @@
 import {
-  TextInput, Text, Select, Progress, ProgressColorStops,
+  TextInput, Text, Progress, ProgressColorStops,
 } from '@gravity-ui/uikit';
 import type { MonthKeyType, KeyType, DateType } from '@reports/shared';
 
-import { options, fields } from './constants';
-import { AppState } from './App';
+import { fields } from '../../constants';
 
-import './App.css';
-import style from './app.module.css';
+import appStyle from '../../app.module.css';
+import style from './details.module.css';
 
 type DetailProps = {
   total: number;
@@ -15,7 +14,6 @@ type DetailProps = {
   month: MonthKeyType;
   data: DateType;
   closed: number;
-  setState: (value: AppState | ((prevState: AppState) => AppState)) => void;
 }
 
 const colorStopsConfig: ProgressColorStops[] = [
@@ -24,7 +22,7 @@ const colorStopsConfig: ProgressColorStops[] = [
   { theme: 'success', stop: 100 }
 ];
 
-function Details({ month, total, issues, data, setState, closed }: DetailProps) {
+function Details({ month, total, issues, data, closed }: DetailProps) {
   const currentMonth = new Date().getMonth() + 1;
 
   return <div className={style.total}>
@@ -36,27 +34,43 @@ function Details({ month, total, issues, data, setState, closed }: DetailProps) 
         colorStops={colorStopsConfig}
       />
     </div>
-    <div className={style.grid}>
+    <div className={appStyle.grid}>
       <div className={style.fields}>
-        <Select
-          label="Month"
-          value={[month]}
-          onUpdate={([t]) => setState((prev: AppState) => ({ ...prev, month: t as MonthKeyType }))}
-          options={options}
-        />
-        {Object.entries(fields).map(([key, label]) => 
-          <TextInput
-            key={key}
-            placeholder="0"
-            label={label}
-            disabled
-            value={`${data?.calendar[month][key as KeyType]}`}
-          />)}
+        {Object.entries(fields)
+          .filter(([key]) => !['weekends', 'offDays', 'holidays', 'shortDays', 'workDays', 'hours'].includes(key))
+          .map(([key, label]) =>
+            <TextInput
+              key={key}
+              placeholder="0"
+              label={label}
+              disabled
+              value={`${data?.calendar[month][key as KeyType]}`}
+            />)}
+        <div className={style.row}>
+          {(['offDays', 'holidays', 'shortDays'] as const).map((key) =>
+            <TextInput
+              key={key}
+              placeholder="0"
+              label={fields[key]}
+              disabled
+              value={`${data?.calendar[month][key]}`}
+            />)}
+        </div>
+        <div className={style.row}>
+          {(['weekends', 'workDays', 'hours'] as const).map((key) =>
+            <TextInput
+              key={key}
+              placeholder="0"
+              label={fields[key]}
+              disabled
+              value={`${data?.calendar[month][key]}`}
+            />)}
+        </div>
       </div>
 
       <div className={style.fields}>
         <TextInput
-          label="Current total"
+          label="Current total hours"
           disabled
           errorPlacement="inside"
           validationState="invalid"

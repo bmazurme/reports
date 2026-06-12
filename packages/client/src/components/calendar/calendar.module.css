@@ -1,0 +1,9 @@
+.item {
+  flex: 0 1 calc(25% - 12px);
+}
+.shortDay {
+  color: #f29c39;
+}
+.holiday {
+  color: #a575d6;
+}

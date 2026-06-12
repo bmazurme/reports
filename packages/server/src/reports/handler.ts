@@ -9,6 +9,7 @@ import { getCurrentMonthDates } from './get-current-month-dates';
 import { convertToHours } from './convert-to-hours';
 import { projectDict, statusDict } from './constants';
 import { buildName } from './build-name';
+import { mockReports } from './mock-data';
 
 const { GITLAB_URL, PRIVATE_TOKEN, USER_ID } = process.env;
 
@@ -20,6 +21,12 @@ export async function handleReport(req: Request, res: Response) {
     res.write(JSON.stringify(event) + '\n');
   };
   let issues: any = [];
+
+  if (!GITLAB_URL) {
+    sendEvent({ type: 'message', data: mockReports });
+    res.end();
+    return;
+  }
 
   const filename = buildName();
   const { start, end } = getCurrentMonthDates();

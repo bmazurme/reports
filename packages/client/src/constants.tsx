@@ -1,7 +1,8 @@
 import { TableColumnConfig, Label, type LabelProps } from '@gravity-ui/uikit';
 import type { KeyType } from '@reports/shared';
+
 import { RowData } from './hocs/with-table-sorting';
-import reportStyle from './report.module.css';
+import reportStyle from './components/report/report.module.css';
 
 export const options = [
   { value: '1', content: 'January' },
