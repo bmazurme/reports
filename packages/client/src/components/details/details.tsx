@@ -73,21 +73,20 @@ function Details({ month, total, issues, data, closed }: DetailProps) {
           label="Current total hours"
           disabled
           errorPlacement="inside"
-          validationState="invalid"
+          validationState={data.calendar[month].hours < total ? 'invalid' : undefined}
+          errorMessage={data.calendar[month].hours < total ? `Превышение нормы часов (${data.calendar[month].hours})` : undefined}
           value={`${total}`}
         />
         <TextInput
           label="Current issues"
           disabled
           errorPlacement="inside"
-          validationState="invalid"
           value={`${issues}`}
         />
         <TextInput
           label="Closed issues"
           disabled
           errorPlacement="inside"
-          validationState="invalid"
           value={`${closed}`}
         />
       </div>
