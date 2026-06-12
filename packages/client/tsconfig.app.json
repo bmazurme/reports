@@ -20,6 +20,6 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
   },
-  "include": ["src", "src/mock.ts"],
+  "include": ["src", "src/mock.ts", "src/components/details/details.tsx"],
   "references": [{ "path": "../shared" }]
 }
