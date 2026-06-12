@@ -6,6 +6,8 @@ export interface SettingsState {
   gitlabUrl: string;
   privateToken: string;
   userId: string;
+  employee: string;
+  company: string;
 }
 
 const STORAGE_KEY = 'settings';
@@ -14,6 +16,8 @@ const initialSettings: SettingsState = {
   gitlabUrl: '',
   privateToken: '',
   userId: '',
+  employee: import.meta.env.EMPLOYEE ?? '',
+  company: import.meta.env.COMPANY ?? '',
 };
 
 const loadState = (): SettingsState => {

@@ -7,3 +7,24 @@
 .holiday {
   color: #a575d6;
 }
+.offDay {
+  color: #1d7d3e;
+}
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 16px;
+}
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.legendColor {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  background-color: currentColor;
+}

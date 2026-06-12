@@ -49,6 +49,7 @@ function MyCalendar({ data, year }: { data: DateType; year: string }) {
             isWeekendOrHoliday={isWeekendOrHoliday}
             shortDays={data.shortDays}
             holidays={data.holidays}
+            offDays={data.offDays}
             year={year}
             month={monthNum}
             lastDay={getLastDayOfMonth(Number(year), monthNum)}
@@ -56,15 +57,30 @@ function MyCalendar({ data, year }: { data: DateType; year: string }) {
         )
       })}
     </div>
+    <div className={style.legend}>
+      <div className={style.legendItem}>
+        <span className={`${style.legendColor} ${style.shortDay}`} />
+        Короткий день
+      </div>
+      <div className={style.legendItem}>
+        <span className={`${style.legendColor} ${style.holiday}`} />
+        Праздник
+      </div>
+      <div className={style.legendItem}>
+        <span className={`${style.legendColor} ${style.offDay}`} />
+        Отпуск/отгул/больничный
+      </div>
+    </div>
   </div>
 }
 
-function CalendarMonth({ minDate, maxDate, isWeekendOrHoliday, shortDays, holidays, year, month, lastDay }: {
+function CalendarMonth({ minDate, maxDate, isWeekendOrHoliday, shortDays, holidays, offDays, year, month, lastDay }: {
   minDate: DateTime;
   maxDate: DateTime;
   isWeekendOrHoliday: (t: DateTime) => boolean;
   shortDays: string[];
   holidays: string[];
+  offDays: string[];
   year: string;
   month: number;
   lastDay: number;
@@ -83,8 +99,12 @@ function CalendarMonth({ minDate, maxDate, isWeekendOrHoliday, shortDays, holida
       }
 
       const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-      button.classList.toggle(style.shortDay, shortDays.includes(dateStr));
-      button.classList.toggle(style.holiday, holidays.includes(dateStr));
+      const isShortDay = shortDays.includes(dateStr);
+      const isHoliday = holidays.includes(dateStr);
+
+      button.classList.toggle(style.shortDay, isShortDay);
+      button.classList.toggle(style.holiday, isHoliday);
+      button.classList.toggle(style.offDay, offDays.includes(dateStr) && !isShortDay && !isHoliday);
     });
   });
 

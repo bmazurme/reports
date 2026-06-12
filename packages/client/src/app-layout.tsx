@@ -41,6 +41,7 @@ function AppLayout() {
         element={(
           <Home
             month={state.month}
+            year={state.year}
             total={total}
             data={data!}
             issues={issues}

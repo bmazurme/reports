@@ -52,6 +52,18 @@ function Settings() {
         value={form.userId}
         onUpdate={handleChange('userId')}
       />
+      <TextInput
+        label="Employee"
+        placeholder="Сотрудник"
+        value={form.employee}
+        onUpdate={handleChange('employee')}
+      />
+      <TextInput
+        label="Company"
+        placeholder="Название компании"
+        value={form.company}
+        onUpdate={handleChange('company')}
+      />
       <Button view="action" size="l" type="submit" width="max">
         Save
       </Button>
