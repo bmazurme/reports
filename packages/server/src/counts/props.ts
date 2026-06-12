@@ -1,34 +1,50 @@
-export const props: Record<number, any> = {
-  2025: {
-    holidays: [
-      '2025-01-01', '2025-01-02', '2025-01-03', '2025-01-04',
-      '2025-01-05', '2025-01-06', '2025-01-07', '2025-01-08',
-      '2025-02-23', '2025-03-08', '2025-05-01', '2025-05-02',
-      '2025-05-08', '2025-05-09', '2025-06-12', '2025-06-13',
-      '2025-11-03', '2025-11-04', '2025-12-31',
-    ],
-    shortDays: [
-      '2025-03-07', '2025-04-30', '2025-06-11', '2025-11-01'
-    ],
-    badDays: [ '2025-11-01' ],
-    offDays: [
-      '2025-11-17', '2025-11-18',  '2025-11-19', '2025-11-20',
-      '2025-11-21', '2025-04-28', '2025-04-29', '2025-04-30',
-      '2025-02-10', '2025-02-11', '2025-02-12', '2025-02-13',
-      '2025-02-14',
-    ],
-  },
-  2026: {
-    holidays: [
-      '2026-01-01', '2026-01-02', '2026-01-03', '2026-01-04',
-      '2026-01-05', '2026-01-06', '2026-01-07', '2026-01-08',
-      '2026-01-09', '2026-02-23', '2026-03-09', '2026-05-01',
-      '2026-05-11', '2026-06-12', '2026-11-04', '2026-12-31',
-    ],
-    shortDays: [
-      '2026-04-30', '2026-05-08', '2026-06-11', '2026-11-03',
-    ],
-    badDays: [],
-    offDays: ['2026-04-25', '2026-04-26', '2026-04-27', '2026-04-28', '2026-04-29', '2026-04-30'],
-  },
+import { readFileSync, writeFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+export type YearProps = {
+  holidays: string[];
+  shortDays: string[];
+  badDays: string[];
+  offDays: string[];
+};
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const propsPath = join(__dirname, 'props.json');
+
+const readProps = (): Record<string, YearProps> => {
+  return JSON.parse(readFileSync(propsPath, 'utf-8'));
+};
+
+export const getProps = (year: number | string | string[]): YearProps => {
+  const props = readProps();
+
+  return props[String(year)];
+};
+
+export const addOffDays = (year: number | string | string[], dates: string[]): YearProps => {
+  const props = readProps();
+  const yearProps = props[String(year)];
+
+  const newDates = dates.filter((date) => !yearProps.offDays.includes(date));
+
+  if (newDates.length > 0) {
+    yearProps.offDays.push(...newDates);
+    writeFileSync(propsPath, JSON.stringify(props, null, 2) + '\n');
+  }
+
+  return yearProps;
+};
+
+export const removeOffDay = (year: number | string | string[], date: string | string[]): YearProps => {
+  const props = readProps();
+  const yearProps = props[String(year)];
+  const dateStr = String(date);
+
+  if (yearProps.offDays.includes(dateStr)) {
+    yearProps.offDays = yearProps.offDays.filter((d) => d !== dateStr);
+    writeFileSync(propsPath, JSON.stringify(props, null, 2) + '\n');
+  }
+
+  return yearProps;
 };
