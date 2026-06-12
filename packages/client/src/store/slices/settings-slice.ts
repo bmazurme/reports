@@ -16,8 +16,8 @@ const initialSettings: SettingsState = {
   gitlabUrl: '',
   privateToken: '',
   userId: '',
-  employee: import.meta.env.EMPLOYEE ?? '',
-  company: import.meta.env.COMPANY ?? '',
+  employee: '',
+  company: '',
 };
 
 const loadState = (): SettingsState => {

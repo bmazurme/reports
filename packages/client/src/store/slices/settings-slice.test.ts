@@ -1,0 +1,34 @@
+import { describe, it, expect, beforeEach } from 'vitest';
+
+import settingsReducer, { setSettings, initialStateSettings, type SettingsState } from './settings-slice';
+
+describe('settings slice', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  it('has empty defaults', () => {
+    expect(initialStateSettings).toEqual({
+      gitlabUrl: '',
+      privateToken: '',
+      userId: '',
+      employee: '',
+      company: '',
+    });
+  });
+
+  it('replaces the state and persists it to localStorage', () => {
+    const next: SettingsState = {
+      gitlabUrl: 'https://gitlab.example.com/api/v4',
+      privateToken: 'token',
+      userId: '1',
+      employee: 'Иван Иванов',
+      company: 'ACME',
+    };
+
+    const state = settingsReducer(initialStateSettings, setSettings(next));
+
+    expect(state).toEqual(next);
+    expect(JSON.parse(localStorage.getItem('settings')!)).toEqual(next);
+  });
+});
