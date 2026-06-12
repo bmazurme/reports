@@ -1,5 +1,53 @@
-.item {
-  flex: 0 1 calc(25% - 12px);
+.page {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+}
+.main {
+  flex: 0 1 auto;
+  max-width: 100%;
+  min-width: 0;
+}
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.side {
+  flex: 0 0 200px;
+}
+.addRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.offDaysList {
+  display: flex;
+  flex-direction: column;
+  margin-top: 12px;
+}
+.offDaysItem {
+  display: block;
+  width: 100%;
+  padding: 6px 8px;
+  border: none;
+  background: none;
+  border-radius: 4px;
+  text-align: left;
+  font: inherit;
+  color: var(--g-color-text-primary);
+  cursor: pointer;
+}
+.offDaysItem:hover {
+  background-color: var(--g-color-base-simple-hover);
+  color: var(--g-color-text-danger);
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, auto);
+  gap: 10px;
 }
 .shortDay {
   color: #f29c39;
