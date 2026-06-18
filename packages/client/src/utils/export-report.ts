@@ -54,6 +54,7 @@ export async function exportReport({ report, month, year, employee, company, off
   [sheet.getCell('A2'), sheet.getCell('B2'), sheet.getCell('C2')].forEach((cell) => {
     cell.font = { bold: true };
   });
+  sheet.getCell('B2').alignment = { horizontal: 'center' };
 
   const dataStartRow = 3;
   const rows = report
@@ -66,8 +67,12 @@ export async function exportReport({ report, month, year, employee, company, off
     row.getCell(1).value = item.name;
     row.getCell(2).value = item.status;
     row.getCell(3).value = item.time;
-    row.eachCell({ includeEmpty: true }, (cell) => {
-      cell.alignment = { vertical: 'middle', wrapText: true };
+    row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+      cell.alignment = {
+        vertical: 'middle',
+        wrapText: true,
+        horizontal: colNumber === 2 || colNumber === 3 ? 'center' : undefined,
+      };
       cell.border = thinBorder;
     });
   });
@@ -78,6 +83,7 @@ export async function exportReport({ report, month, year, employee, company, off
   totalRow.getCell(1).value = 'Итого';
   totalRow.getCell(3).value = { formula: `SUM(C${dataStartRow}:C${dataEndRow})` };
   totalRow.font = { bold: true };
+  totalRow.getCell(3).alignment = { horizontal: 'center' };
 
   sheet.getCell(`A${dataEndRow + 3}`).value = 'Примечания';
   sheet.getCell(`A${dataEndRow + 5}`).value = 'Отпуски/Отгулы/Больничные';
