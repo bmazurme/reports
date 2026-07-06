@@ -61,7 +61,14 @@ export function countWorkAndShortDays(
         data[monthKey].weekends--;
       }
 
-      if (offDaySet.has(dateStr)) {
+      // Считаем off-day только если он выпадает на рабочий день
+      // (не выходной и не праздник), иначе он уже вычтен и вычитать повторно нельзя
+      if (
+        dayOfWeek !== SUNDAY &&
+        dayOfWeek !== SATURDAY &&
+        !holidaySet.has(dateStr) &&
+        offDaySet.has(dateStr)
+      ) {
         data[monthKey].offDays++;
       }
     }
