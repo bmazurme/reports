@@ -1,69 +1,77 @@
 # reports
 
-A small npm-workspaces monorepo that fetches GitLab issue data and computes work-day/hour statistics for monthly time-tracking reports.
+Веб-приложение для учёта рабочего времени: календарь с праздниками и отгулами, помесячная статистика рабочих дней/часов, отчёт по задачам GitLab с экспортом в CSV.
 
-## Packages
+* **Репозиторий:** [github.com/bmazurme/reports](https://github.com/bmazurme/reports)
 
-- **`packages/client`** — React + Vite UI: calendar view with holidays/off-days, monthly stats, and a GitLab issue report table.
-- **`packages/server`** — Express API that computes calendar stats and fetches/exports GitLab issue reports.
-- **`packages/shared`** — TypeScript types shared between `client` and `server`.
+## Tech Stack
 
-## Getting started
+![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
+![Redux Toolkit](https://img.shields.io/badge/Redux_Toolkit-2-764ABC?logo=redux&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-7-646CFF?logo=vite&logoColor=white)
+![Express](https://img.shields.io/badge/Express-5-000000?logo=express&logoColor=white)
+![Vitest](https://img.shields.io/badge/Vitest-4-6E9F18?logo=vitest&logoColor=white)
+![Cypress](https://img.shields.io/badge/Cypress-15-17202C?logo=cypress&logoColor=white)
 
-Requires Node.js >= 24.
+## Возможности
+
+* Годовой календарь с праздниками, короткими днями, выходными и дополнительными отгулами
+* Добавление отгулов диапазоном дат и удаление с подтверждением прямо из интерфейса
+* Помесячная статистика рабочих дней и часов с прогресс-баром до нормы
+* Отчёт по задачам GitLab для выбранного пользователя: сортируемая таблица, конвертация оценок времени в часы, ежемесячный экспорт в CSV
+* Настройки: адрес GitLab, приватный токен, ID пользователя, сотрудник и компания
+* Справочник кодов проектов для меток отчёта — добавление через диалог, удаление с подтверждением
+
+## Архитектура
+
+Монорепозиторий на npm workspaces из трёх пакетов: `client` (React + Vite SPA), `server` (Express API) и `shared` (общие TypeScript-типы для контракта API).
+
+* `packages/client/src/pages` — страницы приложения
+* `packages/client/src/components` — функциональные компоненты (календарь, детали, отчёт, настройки)
+* `packages/client/src/store` — Redux-стор
+* `packages/client/src/hocs`, `hooks`, `utils` — общие хуки, HOC-и и утилиты
+* `packages/server/src/counts` — расчёт календарной статистики по году
+* `packages/server/src/reports` — интеграция с GitLab API и экспорт CSV
+* `packages/server/src/settings` — хранение конфигурации и справочника проектов в JSON
+* `packages/shared/src/types.ts` — общий контракт API (`StreamEvent`, `DateType`, `ReportType` и т.д.)
+
+Клиент и сервер обмениваются данными через newline-delimited JSON (`StreamEvent`): `GET /api/counts/:year` отдаёт календарную статистику, `GET /api/reports` — список задач GitLab.
+
+## Запуск проекта
+
+Требуется Node.js 24+.
 
 ```bash
 npm install
-```
-
-Build the shared package first (the client/server consume it via `dist/`):
-
-```bash
 npm run build --workspace=packages/shared
-```
-
-Create a `.env` file in `packages/server` (not committed):
-
-```
-GITLAB_URL=...
-PRIVATE_TOKEN=...
-USER_ID=...
-PORT=3000 # optional
-```
-
-Run everything:
-
-```bash
 npm run dev
 ```
 
-This starts the server on `:3000` and the client dev server (Vite) concurrently. You can also run them separately with `npm run dev:server` / `npm run dev:client`.
+Сервер поднимется на `http://localhost:3000`, клиент — на адресе, который выведет Vite.
 
-## Features
+Пакет `shared` резолвится через `dist/`, поэтому его нужно собрать (`build`) или держать в режиме `dev` (watch), иначе клиент и сервер не увидят типы `@reports/shared`.
 
-- **Calendar** — yearly calendar with holidays, short days, weekends, and additional off-days. Off-days can be added (date range) or removed (with confirmation) directly from the UI.
-- **Details** — per-month work-day/hour stats with a progress bar toward the month's required hours.
-- **Reports** — sortable table of GitLab issues for the configured user, with time estimates converted to hours; also exports a monthly CSV.
-- **Settings** — configure GitLab URL, private token, user ID, employee, and company. Also manages the project code → label dictionary used to prefix report entries: add new codes via a dialog, and remove existing ones with confirmation.
+### Скрипты
 
-## Scripts
+| Команда | Описание |
+|---------|---------|
+| `npm run dev` | сервер и клиент параллельно |
+| `npm run dev:server` | только сервер (`tsx --watch`) |
+| `npm run dev:client` | только клиент (Vite) |
+| `npm run build --workspace=packages/shared` | сборка общих типов |
+| `npm run dev --workspace=packages/shared` | сборка общих типов в watch-режиме |
+| `npm run build --workspace=packages/client` | продакшен-сборка клиента |
+| `npm run lint --workspace=packages/client` | ESLint по клиенту |
+| `npm test --workspace=packages/client` | юнит-тесты (Vitest) |
+| `npm run e2e --workspace=packages/client` | Cypress headless |
+| `npm test --workspace=packages/server` | юнит-тесты сервера (Vitest) |
 
-Run from the repo root unless noted.
+### Переменные окружения
 
-- `npm run dev` — runs server and client dev servers concurrently.
-- `npm run dev:server` — server only.
-- `npm run dev:client` — client only.
+Файл `.env` в `packages/server` (не коммитится):
 
-Per package:
-
-- `packages/shared`: `npm run build` / `npm run dev` (watch mode) — must be built/watched for `@reports/shared` to be picked up.
-- `packages/client`: `npm run build`, `npm run lint`, `npm run preview`, `npm test` (Vitest), Cypress e2e via `cypress.config.ts`.
-- `packages/server`: `npm test` (Vitest).
-
-## Architecture
-
-1. The client (`App.tsx`) calls `GET /api/counts/:year` and `GET /api/reports` on mount/year-change. Both endpoints stream newline-delimited JSON `StreamEvent` objects (`{ type: 'message' | 'done' | 'error', data }`), defined in `packages/shared/src/types.ts`.
-2. `/api/counts/:id` looks up calendar config (holidays, short days, bad days, off-days) for the given year and computes per-month stats (allDays/holidays/weekends/offDays/shortDays/workDays/hours).
-3. `/api/reports` fetches open + closed GitLab issues for the configured user, maps project IDs to labels via a JSON-backed project dictionary and statuses via a status dictionary, converts time estimates to hours, writes the result to a monthly CSV, and streams back the issue list.
-4. `/api/settings` and `/api/project-dict` persist app configuration and the project code dictionary to JSON files on the server.
-5. The client renders the combined state via `MyCalendar` (calendar grid), `Details` (per-month stats), `Report` (sortable issue table), and `Settings` (configuration + project codes).
+* `GITLAB_URL` — адрес GitLab-инстанса
+* `PRIVATE_TOKEN` — приватный токен для GitLab API
+* `USER_ID` — ID пользователя, по которому строится отчёт
+* `PORT` — порт сервера (опционально, по умолчанию `3000`)
