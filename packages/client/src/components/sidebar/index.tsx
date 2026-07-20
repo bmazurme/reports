@@ -1,6 +1,6 @@
 import { Select, Text, Button, Icon } from '@gravity-ui/uikit';
 import {
-  House, Calendar as CalendarIcon, Gear, Moon, Sun,
+  House, Calendar as CalendarIcon, Gear, Moon, Sun, ChevronsLeft, ChevronsRight,
 } from '@gravity-ui/icons';
 import { Link, useLocation } from 'react-router-dom';
 import type { MonthKeyType } from '@reports/shared';
@@ -9,6 +9,7 @@ import { years, options } from '../../constants';
 import { reportSelector, setReportState } from '../../store';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { useTheme } from '../../hooks/use-theme';
+import { useSidebarCollapse } from '../../hooks/use-sidebar-collapse';
 
 import style from './sidebar.module.css';
 
@@ -23,14 +24,15 @@ function Sidebar() {
   const state = useAppSelector(reportSelector);
   const { pathname } = useLocation();
   const { isDark, toggleTheme } = useTheme();
+  const { collapsed, toggleCollapsed } = useSidebarCollapse();
   const theme = isDark ? 'dark' : 'light';
 
   return (
-    <div className={style.sidebar}>
+    <div className={`${style.sidebar} ${collapsed ? style.collapsed : ''}`}>
       <div className={style.workspace}>
-        <div className={style.mark}>R</div>
-        <div className={style.meta}>
-          <Text variant="subheader-2">Reports</Text>
+        <div className={style.mark}>n</div>
+        <div className={`${style.meta} ${collapsed ? style.hidden : ''}`}>
+          <Text variant="subheader-2">ntlstl.time</Text>
           <Text variant="caption-2" color="secondary">Time tracking</Text>
         </div>
       </div>
@@ -45,26 +47,29 @@ function Sidebar() {
               component={Link}
               to={to}
               className={style.navButton}
+              title={label}
             >
               <Icon data={icon} size={16} />
-              {label}
+              <span className={`${style.label} ${collapsed ? style.hidden : ''}`}>{label}</span>
             </Button>
           ))}
         </nav>
-        <Select
-          label="Year"
-          value={[state.year]}
-          className={style.select}
-          onUpdate={([t]) => dispatch(setReportState({ ...state, year: t as MonthKeyType }))}
-          options={years}
-        />
-        <Select
-          label="Month"
-          value={[state.month]}
-          className={style.select}
-          onUpdate={([t]) => dispatch(setReportState({ ...state, month: t as MonthKeyType }))}
-          options={options}
-        />
+        <div className={`${style.selects} ${collapsed ? style.hidden : ''}`}>
+          <Select
+            label="Year"
+            value={[state.year]}
+            className={style.select}
+            onUpdate={([t]) => dispatch(setReportState({ ...state, year: t as MonthKeyType }))}
+            options={years}
+          />
+          <Select
+            label="Month"
+            value={[state.month]}
+            className={style.select}
+            onUpdate={([t]) => dispatch(setReportState({ ...state, month: t as MonthKeyType }))}
+            options={options}
+          />
+        </div>
       </div>
       <div className={style.footer}>
         <Button
@@ -76,7 +81,22 @@ function Sidebar() {
           title={theme === 'light' ? 'Тёмная' : 'Светлая'}
         >
           <Icon data={theme === 'light' ? Moon : Sun} size={16} />
-          {theme === 'light' ? 'Тёмная тема' : 'Светлая тема'}
+          <span className={`${style.label} ${collapsed ? style.hidden : ''}`}>
+            {theme === 'light' ? 'Тёмная тема' : 'Светлая тема'}
+          </span>
+        </Button>
+      </div>
+      <div className={style.collapseBar}>
+        <Button
+          view="flat"
+          size="l"
+          width="max"
+          onClick={toggleCollapsed}
+          className={style.navButton}
+          title={collapsed ? 'Развернуть' : 'Свернуть'}
+        >
+          <Icon data={collapsed ? ChevronsRight : ChevronsLeft} size={16} />
+          <span className={`${style.label} ${collapsed ? style.hidden : ''}`}>Свернуть</span>
         </Button>
       </div>
     </div>

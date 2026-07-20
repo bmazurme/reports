@@ -4,7 +4,7 @@
   min-height: 100vh;
 }
 .sidebar {
-  flex: 0 0 240px;
+  flex: 0 0 auto;
   position: sticky;
   top: 0;
   height: 100vh;

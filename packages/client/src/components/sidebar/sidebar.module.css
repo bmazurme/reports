@@ -1,17 +1,29 @@
 .sidebar {
   display: flex;
   flex-direction: column;
+  width: 240px;
   height: 100%;
   background: var(--g-color-base-background);
   border-right: 1px solid var(--g-color-line-generic);
+  transition: width 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
+}
+
+.collapsed {
+  width: 64px;
 }
 
 .workspace {
   display: flex;
   align-items: center;
-  gap: 10px;
   padding: 14px;
   border-bottom: 1px solid var(--g-color-line-generic);
+  transition: padding 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.collapsed .workspace {
+  justify-content: center;
+  padding: 14px 8px;
 }
 
 .mark {
@@ -33,6 +45,18 @@
   flex-direction: column;
   gap: 2px;
   min-width: 0;
+  max-width: 180px;
+  margin-left: 10px;
+  opacity: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: opacity 0.2s ease, max-width 0.32s cubic-bezier(0.4, 0, 0.2, 1), margin-left 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.meta.hidden {
+  max-width: 0;
+  margin-left: 0;
+  opacity: 0;
 }
 
 .pad {
@@ -51,15 +75,55 @@
 
 .navButton {
   justify-content: flex-start;
-  gap: 8px;
+}
+
+.collapsed .navButton {
+  justify-content: center;
+  gap: 0;
+}
+
+.label {
+  display: inline-block;
+  max-width: 160px;
+  margin-left: 8px;
+  opacity: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: opacity 0.2s ease, max-width 0.32s cubic-bezier(0.4, 0, 0.2, 1), margin-left 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.label.hidden {
+  max-width: 0;
+  margin-left: 0;
+  opacity: 0;
 }
 
 .select {
   width: 100%;
 }
 
+.selects {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 200px;
+  opacity: 1;
+  overflow: hidden;
+  transition: opacity 0.2s ease, max-height 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.selects.hidden {
+  max-height: 0;
+  opacity: 0;
+}
+
 .footer {
   margin-top: auto;
+  padding: 12px;
+  border-top: 1px solid var(--g-color-line-generic);
+}
+
+.collapseBar {
   padding: 12px;
   border-top: 1px solid var(--g-color-line-generic);
 }
